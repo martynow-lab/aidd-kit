@@ -650,7 +650,7 @@ When you are not using `/conductor`, ignore this section — Stage tables and fr
 
 ## Related files
 
-- [AIDD-KIT.md](./AIDD-KIT.md) — portable kit inventory + install into a consumer project
+- [AIDD-KIT.md](./AIDD-KIT.md) — portable kit inventory; public source [martynow-lab/aidd-kit](https://github.com/martynow-lab/aidd-kit)
 - `.cursor/docs/ARCHITECTURE.md` — technical project contract (created in Stage 1 from the template; does not exist in the scaffold)
 - [../skills/conductor/SKILL.md](../skills/conductor/SKILL.md) — optional Stages 3–8 orchestrator (`/conductor`)
 - [templates/ARCHITECTURE-template.md](./templates/ARCHITECTURE-template.md) — ARCHITECTURE template (Stage 1)
