@@ -1,0 +1,8 @@
+# Pre-commit gate (AiDD Workflow 2.0, Stage 1 setup).
+# Objective evidence before every commit: staged-file lint, typecheck, tests for changed files.
+# Install: npm i -D husky lint-staged && npx husky init, then copy this file to .husky/pre-commit.
+# Requires package.json scripts: "check" (typecheck/lint) and "test:changed".
+
+npx lint-staged
+npm run check
+npm run test:changed

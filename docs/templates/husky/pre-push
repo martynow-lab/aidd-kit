@@ -1,0 +1,7 @@
+# Pre-push gate (AiDD Workflow 2.0, Stage 1 setup).
+# Runs the E2E suite before push, but only when E2E specs exist in the project.
+# Copy this file to .husky/pre-push. Requires package.json script: "test:e2e".
+
+if find tests/e2e \( -name '*.spec.ts' -o -name '*.spec.js' \) -print -quit 2>/dev/null | grep -q .; then
+  npm run test:e2e
+fi
