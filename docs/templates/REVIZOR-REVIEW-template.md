@@ -9,7 +9,7 @@
 | **Reviewer** | revizor (Stage 7) |
 | **Verdict** | PASS or REFACTOR |
 
-> Latest Stage 7 round only — overwrite on each review. Commit between rounds if prior REFACTOR must stay in git.
+> Latest Stage 7 round only — overwrite on each review. Commit between rounds if prior REFACTOR must stay in git (`docs(FEATURE_SLUG): REVIZOR …`).
 
 ---
 
@@ -22,6 +22,18 @@
 
 | AC | TEST-PLAN scenario | Test file / case | Status |
 |----|--------------------|------------------|--------|
+
+### 2b. Regression / full suite
+
+| Gate | Command | Result | Evidence |
+|------|---------|--------|----------|
+| Full unit suite | `npm test` | pass / fail | |
+| Check (format/lint/types) | `npm run check` | pass / fail | |
+| Sibling supersedence | TEST-PLAN §1.1 files (if any) | updated / N/A / gap | |
+
+- [ ] Full `npm test` green (feature-only Vitest is **not** enough for PASS)
+- [ ] `npm run check` green
+- [ ] Sibling files from TEST-PLAN §1.1 updated in this PR (or N/A — no supersedence)
 
 ### 3. Plain-language summary
 
@@ -37,4 +49,4 @@
 
 ## Manual acceptance gate
 
-A revizor **PASS does not replace the manual acceptance gate**. Before Stage 8, the user must personally walk through every AC in SPEC by using the feature.
+A revizor **PASS does not replace the manual acceptance gate**. Before Stage 8, the user must personally walk through every AC in SPEC by using the feature. Confirm this report already recorded full-suite green before unlocking Stage 8.

@@ -160,6 +160,23 @@ Draft ARCHITECTURE.md per Stage 1 of WORKFLOW.
 
 For **each feature** from the roadmap — a separate Stage 3 → 10 cycle. Each stage — **new chat** (except Stage 6, where you may use several short chats per slice).
 
+### Stage commit discipline (Stages 3–8)
+
+Every completed stage (and each REVISE/REFACTOR round that must stay in git) leaves a **conventional commit** on `spec/<feature>`. This is for *in-flight* audit — bisect, rollback, chat handoff. Stage 9 squash-merge collapses these onto the base branch (see Stage 9).
+
+| Stage | Message pattern | Paths |
+|-------|-----------------|-------|
+| 3 | `docs(<f>): draft SPEC` / after freeze `docs(<f>): freeze SPEC` | `active/<f>/SPEC.md` |
+| 3.5 | `docs(<f>): SPEC-REVIEW <APPROVE\|REVISE>` | `SPEC-REVIEW.md` (+ SPEC if Fix applied) |
+| 4 | `docs(<f>): draft TEST-PLAN` / `docs(<f>): freeze TEST-PLAN` | `TEST-PLAN.md` |
+| 4.5 | `docs(<f>): TEST-PLAN-REVIEW <APPROVE\|REVISE>` | `TEST-PLAN-REVIEW.md` |
+| 5 | `test(<f>): RED <slice-id> failing specs` | tests + optional `MANUAL-CHECKLIST.md` |
+| 6 | `feat(<f>): GREEN <slice-id> …` | production (+ sibling test updates if supersedence) |
+| 7 | `docs(<f>): REVIZOR <PASS\|REFACTOR>` | `REVIZOR-REVIEW.md` |
+| 8 | `docs(<f>): changelog + PR-DRAFT` | `CHANGELOG.md`, `PR-DRAFT.md` |
+
+**Practice:** Conductor **auto-commits** after **every** subagent/step — including each REVISE round — before the next Task (status line includes short SHA). Manual one-stage chats treat the matching commit as part of **Done when**. Workflow/tooling edits stay on a **separate** branch from the feature being conducted.
+
 ---
 
 ## Stage 3 — Specification
@@ -168,9 +185,9 @@ For **each feature** from the roadmap — a separate Stage 3 → 10 cycle. Each 
 |---|---|
 | **Goal** | Create a SPEC for one feature — contract for *what we build* |
 | **Input** | `@.cursor/docs/ARCHITECTURE.md`, `@.cursor/docs/ROADMAP.md` (or phase doc), module docs if any |
-| **Output** | `.cursor/workspace/active/<feature>/SPEC.md` |
+| **Output** | `.cursor/workspace/active/<feature>/SPEC.md`; **commit** per stage commit discipline |
 | **Agent** | Subagent **specify** (`.cursor/agents/specify.md`) or Agent + `@SPEC-template.md` |
-| **Done when** | SPEC is complete; open questions closed or explicitly deferred; you wrote **“spec frozen”** |
+| **Done when** | SPEC is complete; open questions closed or explicitly deferred; you wrote **“spec frozen”**; freeze commit created |
 
 **SPEC must include**
 
@@ -200,9 +217,9 @@ For **each feature** from the roadmap — a separate Stage 3 → 10 cycle. Each 
 |---|---|
 | **Goal** | Independent audit of draft SPEC before freeze |
 | **Input** | `@SPEC.md` (draft), `@ARCHITECTURE.md`, `@ROADMAP.md` (or phase doc) |
-| **Output** | `.cursor/workspace/active/<feature>/SPEC-REVIEW.md` — **APPROVE** or **REVISE** + findings + FR→AC→EC matrix |
+| **Output** | `.cursor/workspace/active/<feature>/SPEC-REVIEW.md` — **APPROVE** or **REVISE** + findings + FR→AC→EC matrix; **commit** |
 | **Agent** | Subagent **spec-reviewer** (`.cursor/agents/spec-reviewer.md`) — **new chat**; `@specify` does not review its own draft |
-| **Done when** | Report file written; on APPROVE you may freeze; on REVISE → new Stage 3 chat with the Fix list |
+| **Done when** | Report file written; commit created (`docs(<f>): SPEC-REVIEW …`); on APPROVE you may freeze; on REVISE → new Stage 3 chat with the Fix list |
 
 **Practice**
 
@@ -219,9 +236,9 @@ For **each feature** from the roadmap — a separate Stage 3 → 10 cycle. Each 
 |---|---|
 | **Goal** | Define the *full* verification strategy for the feature **before** production code |
 | **Input** | `@.cursor/workspace/active/<feature>/SPEC.md`, `@.cursor/docs/ARCHITECTURE.md` (Testing section) |
-| **Output** | `.cursor/workspace/active/<feature>/TEST-PLAN.md` |
+| **Output** | `.cursor/workspace/active/<feature>/TEST-PLAN.md`; **commit** per stage commit discipline |
 | **Agent** | Subagent **test-plan** (`.cursor/agents/test-plan.md`) or Agent + `@TEST-PLAN-template.md` |
-| **Done when** | Every acceptance criterion from SPEC has at least one scenario; auto vs manual decided; you wrote **“test plan frozen”** |
+| **Done when** | Every acceptance criterion from SPEC has at least one scenario; auto vs manual decided; you wrote **“test plan frozen”**; freeze commit created |
 
 The agent must decide: **what** to verify, **how** (tool), and **what level of automation** is appropriate.
 
@@ -260,9 +277,9 @@ The agent must decide: **what** to verify, **how** (tool), and **what level of a
 |---|---|
 | **Goal** | Independent audit of draft TEST-PLAN before freeze / RED |
 | **Input** | `@TEST-PLAN.md` (draft), `@SPEC.md` (frozen), `@ARCHITECTURE.md` |
-| **Output** | `.cursor/workspace/active/<feature>/TEST-PLAN-REVIEW.md` — **APPROVE** or **REVISE** + findings + AC→scenario matrix |
+| **Output** | `.cursor/workspace/active/<feature>/TEST-PLAN-REVIEW.md` — **APPROVE** or **REVISE** + findings + AC→scenario matrix; **commit** |
 | **Agent** | Subagent **test-plan-reviewer** (`.cursor/agents/test-plan-reviewer.md`) — **new chat**; Stage 4 author does not review their own plan |
-| **Done when** | Report file written; on APPROVE you may freeze; on REVISE → new Stage 4 chat with the Fix list |
+| **Done when** | Report file written; commit created (`docs(<f>): TEST-PLAN-REVIEW …`); on APPROVE you may freeze; on REVISE → new Stage 4 chat with the Fix list |
 
 **Practice**
 
@@ -293,7 +310,7 @@ Implement RED only per TEST-PLAN §7. Create MANUAL-CHECKLIST.md from §5 if man
 | **Input** | `@TEST-PLAN.md`, `@SPEC.md`, `@ARCHITECTURE.md` (testing + stack rule) |
 | **Output** | Automated tests and/or `MANUAL-CHECKLIST.md` (created from TEST-PLAN §5); **commit tests/checklists only** |
 | **Agent** | Agent mode; rule `anti-over-engineering.md` — **no production code** for new behavior |
-| **Done when** | P0 automated tests fail for the **expected** reason; manual items marked “not implemented”; commit created |
+| **Done when** | P0 automated tests fail for the **expected** reason; manual items marked “not implemented”; RED commit created (`test(<f>): RED …`) |
 
 **Order**
 
@@ -324,7 +341,7 @@ test(<feature>): add failing specs per TEST-PLAN
 | **Input** | `@SPEC.md`, `@TEST-PLAN.md`, `@` failing test files, stack rule, `anti-over-engineering.md` |
 | **Output** | Production code; **GREEN state**; commit(s) |
 | **Agent** | Agent mode; one failing test / one slice at a time |
-| **Done when** | All P0 automated tests green; P0 manual checklist done; SPEC acceptance criteria met |
+| **Done when** | All P0 automated tests green; P0 manual checklist done; SPEC acceptance criteria met; GREEN commit(s) created |
 
 **Order**
 
@@ -348,6 +365,7 @@ feat(<feature>): implement <behavior> — green P0 tests
 
 - Do not bundle unrelated features in one commit.
 - Keep the active feature branch scoped to that feature — land unrelated workflow/tooling/docs on a separate branch (or `master`) first so they do not pollute the PR diff or Stage 7 review scope.
+- When TEST-PLAN §1.1 lists **sibling test files** to update (supersedence), edit those files in the **same** GREEN slice that introduces the superseding behaviour — same PR, not a follow-up.
 - When adding a new `data-js` hook under an existing view (list, card, …), extend that view’s `clear*Markup` / leave-view path in `main.js` in the **same** GREEN slice, and assert the hook is absent after navigation in a bootstrap scenario (orphaned controls otherwise stay clickable).
 - When SPEC names a **visual direction** (e.g. Soft Material light UI), GREEN must apply that direction to shipped surfaces — page/surface backgrounds, spacing, primary vs secondary controls, readable type — not only the minimal selectors needed to green CSS-contract unit tests. Pixel-perfection remains out of scope; bare unstyled chrome with a token checklist is not done.
 - If TEST-PLAN requires E2E — green unit/integration first, then e2e in the same stage or a separate slice.
@@ -360,9 +378,9 @@ feat(<feature>): implement <behavior> — green P0 tests
 |---|---|
 | **Goal** | Independent, evidence-based review by a **different** agent / chat, then user acceptance |
 | **Input** | Diff of recent commit(s) or `@` changed files + `@SPEC.md` + `@TEST-PLAN.md` + `@ARCHITECTURE.md` |
-| **Output** | `.cursor/workspace/active/<feature>/REVIZOR-REVIEW.md` — **PASS** or **REFACTOR** + findings + traceability matrix + plain-language summary |
+| **Output** | `.cursor/workspace/active/<feature>/REVIZOR-REVIEW.md` — **PASS** or **REFACTOR** + findings + traceability matrix + plain-language summary; **commit** |
 | **Agent** | Subagent **revizor** (`.cursor/agents/revizor.md`) — **new chat**; implementer does not review themselves |
-| **Done when** | `REVIZOR-REVIEW.md` written with PASS **and** you personally confirmed every Acceptance Criterion (acceptance gate below) |
+| **Done when** | `REVIZOR-REVIEW.md` written with PASS, full `npm test` + `npm run check` recorded green, review commit created, **and** you personally confirmed every Acceptance Criterion (acceptance gate below) |
 
 **Check**
 
@@ -370,28 +388,33 @@ feat(<feature>): implement <behavior> — green P0 tests
 |------|----------|
 | Architecture | Stack violations, forbidden libs, folder structure |
 | SPEC | Scope implemented; out of scope not bloated |
-| TEST-PLAN | P0 covered; negatives not ignored |
+| TEST-PLAN | P0 covered; negatives not ignored; sibling supersedence files updated if listed |
 | Code quality | Readability, duplication, ghost code |
 | Security | Escaping, secrets, auth |
 | Performance | Obvious N+1, redundant requests |
 | Typing | `any` without justification |
 | Test quality | Behavior tests, not implementation details |
+| Full suite | **`npm test`** (entire unit suite) green — feature-only Vitest is never enough for PASS |
+| Tooling gate | **`npm run check`** green (format / lint / typecheck per project) |
 
 **Evidence requirements (revizor)**
 
 - Every finding must cite: **file + line + concrete scenario** (how to reproduce / observe the issue) + the **violated rule** (ARCHITECTURE section, project rule, or SPEC item). No citation — no finding.
 - Mandatory **traceability matrix**: each AC from SPEC → TEST-PLAN scenario → test file. Any gap = **REFACTOR**.
+- Mandatory **regression / full-suite evidence**: cite `npm test` and `npm run check` commands + pass summary in `REVIZOR-REVIEW.md`. Missing or red suite = **REFACTOR**.
 - **Plain-language summary** for the process owner: each finding explained in one jargon-free sentence.
 
 **Practice**
 
 - Copy shape from `.cursor/docs/templates/REVIZOR-REVIEW-template.md` (agent writes the file).
-- Report file holds the **latest** round only (overwrite). Commit between rounds if you need prior REFACTOR in git.
+- Report file holds the **latest** round only (overwrite). Commit between rounds if you need prior REFACTOR in git (`docs(<f>): REVIZOR …`).
 - No verdict in chat without the report file written.
 - On REFACTOR, paste findings from `@REVIZOR-REVIEW.md` into a **new Stage 6 chat**.
+- Until project CI runs the suite on every PR, treat **local** `npm test` + `npm run check` as the real gates — Netlify deploy preview green is not suite green.
 
 **Acceptance gate (mandatory, after revizor PASS)**
 
+- Confirm revizor PASS already recorded **full-suite** green (`npm test` + `npm run check`) in `REVIZOR-REVIEW.md`.
 - You personally walk through **every Acceptance Criterion** from SPEC by *using* the feature — behavior-level check, no code reading.
 - Any AC that fails or cannot be exercised → back to Stage 6 with a description of what you saw.
 - Only revizor PASS (in `REVIZOR-REVIEW.md`) + your AC confirmation unlocks Stage 8.
@@ -409,9 +432,9 @@ feat(<feature>): implement <behavior> — green P0 tests
 |---|---|
 | **Goal** | Short human-readable summary of changes |
 | **Input** | `@SPEC.md`, git log / feature diff, `@REVIZOR-REVIEW.md` (if any) |
-| **Output** | Changelog entry + PR description draft |
+| **Output** | Changelog entry + PR description draft; **commit** (`docs(<f>): changelog + PR-DRAFT`) |
 | **Agent** | Quick Chat / Agent — no code changes |
-| **Done when** | User-facing description exists; breaking changes noted; known limitations listed |
+| **Done when** | User-facing description exists; breaking changes noted; known limitations listed; Stage 8 commit created |
 
 **Where to store**
 
@@ -441,9 +464,16 @@ feat(<feature>): implement <behavior> — green P0 tests
 |---|---|
 | **Goal** | Final PR to remote (or merge to main for solo) |
 | **Input** | Green branch, changelog, `@SPEC.md`, test results |
-| **Output** | PR merged with **squash** so default branch gets **one** commit per feature |
-| **Agent** | Agent + `gh pr create` / `gh pr merge --squash`, or GitHub UI **Squash and merge** |
-| **Done when** | PR squash-merged; CI green (if configured); self-review checklist passed; **after-merge checklist** complete (or explicitly continued in Stage 10) |
+| **Output** | PR (or merged commit) with full description |
+| **Agent** | Agent + `gh pr create` or manual PR in GitHub UI |
+| **Merge strategy** | `gh pr merge --squash` (**default**) — every stage commit from `spec/<feature>` collapses into a single commit on the base branch (`main` / `master`) |
+| **Squash-commit message** | Conventional: `feat(<feature>): <one-line summary from SPEC Goal>`; body links to `workspace/archived/<feature>/` (SPEC, TEST-PLAN, REVIZOR-REVIEW) |
+| **Done when** | PR merged; CI green (if configured); self-review checklist passed; **after-merge checklist** complete (or explicitly continued in Stage 10) |
+Stage-level commit granularity (Stages 3–8) exists for *in-flight* audit — bisect, REFACTOR-round rollback, chat handoff. It is **not** required to survive on the base branch; the PR page retains the full original commit list even after squash-merge, so traceability is not lost — only kept out of `git log` on main/master.
+
+**Escape hatch:** use `gh pr merge --rebase` instead of `--squash` when you want full stage-by-stage history preserved on the base branch (e.g. teaching branch, very large feature). Opt-out must be **explicit**; squash remains the default.
+
+Until CI runs `npm test` / `npm run check` on every PR, treat those local commands (already required at Stage 7) as the real suite gates — Netlify deploy preview green is not suite green.
 
 **PR must include**
 
@@ -451,7 +481,7 @@ feat(<feature>): implement <behavior> — green P0 tests
 |---------|---------|
 | Summary | Why the feature exists (from SPEC Goal) |
 | Changes | Main files / modules |
-| Testing | Commands + results (unit, e2e, manual) |
+| Testing | Commands + results (unit, e2e, manual) — include full `npm test` / `npm run check` |
 | SPEC link | `.cursor/workspace/active/<feature>/SPEC.md` |
 | Limitations | From SPEC / review |
 | Screenshots | For UI — when relevant |
@@ -467,6 +497,7 @@ feat(<feature>): implement <behavior> — green P0 tests
 - [ ] Move `.cursor/workspace/active/<feature>/` → `.cursor/workspace/archived/<feature>/`.
 - [ ] Update `ROADMAP.md` — progress tracker row `done`, workspace path → `archived/`, dependency graph if applicable.
 - [ ] Run **Stage 10 — Retro** (separate short chat, see below).
+- [ ] Do **not** auto-delete `spec/<feature-slug>` at merge time — delete it as a **separate** step after Stage 10 retro closes, so Stage 10 can still inspect the pre-squash branch if needed. If you use `gh pr merge --squash --delete-branch`, note the tradeoff: the branch is gone immediately and the **PR page** becomes the only source of granular stage history.
 
 > Skipping this checklist has happened on every feature through #4 — Stage 10 retro now includes archive + ROADMAP as its first actions when Stage 9 skipped them.
 
@@ -493,6 +524,7 @@ feat(<feature>): implement <behavior> — green P0 tests
 - Keep it short — 10–15 minutes, one chat.
 - Prefer one small, concrete rule change over a vague “be more careful” note.
 - If nothing needs to change, say so explicitly — “no changes” is a valid output.
+- After retro closes, delete local/remote `spec/<feature-slug>` if it was kept for Stage 10 inspection (see Stage 9 after-merge checklist).
 
 ---
 
@@ -636,10 +668,11 @@ Opt-in alternate runner for **Stages 3–8** only. Default practice stays **one 
 | **Pre-Stage 3** | On a fresh run, ask clarifying questions from the roadmap item / draft SPEC before launching specify (skipped on mid-run resume) |
 | **Reviews** | Stages 3.5 / 4.5 **on by default**; omit only with `--skip-reviews` |
 | **Freeze** | Conductor may set SPEC and TEST-PLAN Status to `frozen` after APPROVE (default) or after a successful draft when reviews are skipped. Never freeze on REVISE/REFACTOR |
-| **RED / GREEN** | Separate Tasks per slice; conductor confirms failing RED (non-zero failures) before starting GREEN |
+| **RED / GREEN** | Separate Tasks per slice; conductor confirms failing RED (non-zero failures) before GREEN — except **boundary lock-in** RED (0 failing static guards) → commit RED, skip GREEN (see skill) |
 | **Mid-run flags** | Turning reviews on after a skip-path freeze → unfreeze to `draft`, run missing review loops, freeze again after APPROVE (details in the skill) |
-| **AC gate** | Still mandatory and human — after revizor PASS, pause until you confirm every Acceptance Criterion before Stage 8 |
-| **Stage 8** | After AC unlock, conductor writes `CHANGELOG.md` entry + `active/<feature>/PR-DRAFT.md`, then stops (no Stage 9/10) |
+| **AC gate** | Still mandatory and human — after revizor PASS (with full-suite evidence), pause until you confirm every Acceptance Criterion before Stage 8. **No** production/test edits after PASS / while AC pending unless you explicitly ask |
+| **Stage 8** | After AC unlock, conductor writes `CHANGELOG.md` entry + `active/<feature>/PR-DRAFT.md`, **commits**, then stops (no Stage 9/10) |
+| **Commits** | After **every** subagent/step on `spec/<feature>` (draft, REVISE, APPROVE, freeze, RED, GREEN, REFACTOR, Stage 8) — commit then hand off; see skill **Commits** + WORKFLOW **Stage commit discipline** |
 | **Agents** | Same specialists and artifacts as the manual flow; conductor orchestrates Stages 3–7 (does not author SPEC/tests/code). Stage 8 docs are the sole authoring exception |
 | **Branch** | Always `spec/<feature-slug>` (create/checkout from default base after `git fetch`; never conduct on `master`/`main`/`develop`) |
 | **Branch scope** | Ship conductor/skill/`WORKFLOW` edits on a separate branch from the feature being conducted — same Stage 6 Practice as other tooling |

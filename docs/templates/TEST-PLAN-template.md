@@ -61,6 +61,16 @@ doneCriteria:
 
 <!-- Explicit deferrals: other features, non-functional, manual-only items with reason -->
 
+### 1.1 Supersedence & regression
+
+<!-- Mandatory. If this SPEC supersedes older ACs / absence assertions: list sibling test files GREEN must update in the same PR. Do not only say "do not re-assert here". If none: write None. -->
+
+| Item | Value |
+|------|-------|
+| Supersedes prior ACs / absence tests? | yes / no |
+| Sibling test files to update in GREEN | `tests/…` (or `None`) |
+| Full-suite gate before Stage 7 PASS | `npm test` + `npm run check` must be green |
+
 ---
 
 ## 2. Verification mix
@@ -139,7 +149,7 @@ Expected initial state: P0 automated tests **fail** for the correct reason.
 <!-- Order by dependency: tests with fewer production deps come first -->
 <!-- This table must match slices[] in front matter 1:1 -->
 
-**RED commit message:** `test(FEATURE_SLUG): add failing specs per TEST-PLAN`
+**RED commit message:** `test(FEATURE_SLUG): RED <slice-id> failing specs` (see WORKFLOW Stage commit discipline)
 
 ---
 
@@ -156,12 +166,16 @@ Expected initial state: P0 automated tests **fail** for the correct reason.
 - [ ] All **P0** scenarios pass
 - [ ] Manual checklist P0 items pass on target environment
 - [ ] Every SPEC AC verifiable by behaviour
+- [ ] Sibling test files from §1.1 updated in this PR (or §1.1 is `None`)
 - [ ] `npm run check` and `npm test` green
 
 ### Stage 7 revizor gate
 
 - Traceability matrix (§4) has no gaps: each AC → scenario → test file
 - Negative scenarios are not skipped or stubbed to always-pass
+- Full `npm test` green (feature-only Vitest is not enough)
+- `npm run check` green
+- Sibling files from §1.1 updated if listed
 
 ---
 

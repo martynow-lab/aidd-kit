@@ -57,6 +57,7 @@ Your deliverable is `.cursor/workspace/active/<feature>/TEST-PLAN.md`.
 [header table]
 [preamble: negative ratio]
 ## 1. Scope
+## 1.1 Supersedence & regression
 ## 2. Verification mix
 ## 3. Scenario table
 ## 4. AC traceability matrix
@@ -72,6 +73,13 @@ expected, maps to SC-n). Stage 5 RED materializes this into
 `.cursor/workspace/active/<feature>/MANUAL-CHECKLIST.md` using
 `.cursor/docs/templates/MANUAL-CHECKLIST-template.md`. You do not create
 that file in Stage 4.
+
+**§1.1 Supersedence & regression (mandatory):** Always include this subsection
+under Scope. If this SPEC supersedes older ACs or absence assertions from prior
+features, **list sibling test file paths** that GREEN must update in the same
+PR (do not only write “do not re-assert absence here”). If there is no
+supersedence, write `None` / `N/A` explicitly. Always state the **full-suite
+gate**: `npm test` and `npm run check` must be green before Stage 7 PASS.
 
 ---
 
@@ -189,6 +197,11 @@ Before presenting any draft, verify:
 - [ ] `manualChecklist` in front matter matches §5 table exactly
 - [ ] If §5 has rows, §8 RED done criteria mention `MANUAL-CHECKLIST.md`
       will be created at Stage 5 RED
+- [ ] §1.1 Supersedence & regression is present; sibling test files listed
+      when planning notes / Out of Scope / SPEC imply supersedence (else
+      explicit `None` / `N/A`)
+- [ ] §1.1 and §8 Stage 7 gate require full `npm test` + `npm run check`
+      green before PASS
 
 If any check fails, fix before showing the draft.
 
@@ -209,7 +222,8 @@ After the user freezes the test plan, end with this block:
 Implement RED only: failing tests per TEST-PLAN §7 in order.
 Create MANUAL-CHECKLIST.md from TEST-PLAN §5 if manual scenarios exist.
 No production code for new behaviour.
-Commit with: test(<feature>): add failing specs per TEST-PLAN
+Commit with: test(<feature>): RED <slice-id> failing specs
+(see WORKFLOW Stage commit discipline)
 ```
 
 While the plan is still `draft`, do not emit the handoff.

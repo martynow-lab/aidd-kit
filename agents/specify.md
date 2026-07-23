@@ -110,6 +110,9 @@ After the user freezes the spec, end with this block for the Stage 4 chat:
 @.cursor/agents/test-plan.md
 @.cursor/docs/templates/TEST-PLAN-template.md
 Every AC needs ≥1 scenario; ≥40% negative/failure.
+Include TEST-PLAN §1.1 Supersedence & regression (sibling files or None).
+Commit drafts/freezes per WORKFLOW Stage commit discipline
+(`docs(<feature>): draft|freeze SPEC` already done before this handoff).
 ```
 
 While the spec is still `draft`, do not emit the handoff — remind the user the

@@ -86,6 +86,8 @@ as the sole finding.
 | doneCriteria     | `greenComplete.p0Scenarios` = flat union of all slice `doneWhen` arrays                                    |
 | manualChecklist sync | Front matter `manualChecklist` IDs and `scenarios` match §5 table (if §5 exists)                       |
 | Manual artifact plan | If §5 has rows, §8 RED done criteria state `MANUAL-CHECKLIST.md` will be created at Stage 5 RED        |
+| Supersedence & regression | §1.1 present; if planning notes / Out of Scope / SPEC imply supersedence, **sibling test files are listed** (not only “do not re-assert”); else explicit `None` / `N/A`. Missing list when supersedence is implied → **REVISE** |
+| Full-suite gate | §1.1 and/or §8 Stage 7 gate require `npm test` + `npm run check` green before PASS |
 
 
 ---
@@ -281,7 +283,8 @@ after APPROVE — reviewers still must not edit Status.
 @.cursor/rules/anti-over-engineering.md
 
 Implement RED only: failing tests and/or manual checklist per TEST-PLAN P0 rows.
-No production code for new behaviour. Commit tests/checklists only.
+No production code for new behaviour. Commit tests/checklists only
+(`test(<feature>): RED <slice-id> failing specs` — WORKFLOW Stage commit discipline).
 ```
 
 **On REVISE**, append:

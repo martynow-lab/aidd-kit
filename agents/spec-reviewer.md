@@ -238,13 +238,15 @@ Under `/conductor`, the conductor auto-freezes after APPROVE (and after
 **On APPROVE**, append the Stage 4 handoff block (manual one-chat flow):
 
 ```
-Stage 4 ready. Attach SPEC.md to a new @implement chat and begin TDD scaffolding.
+Stage 4 ready. Commit: docs(<feature>): SPEC-REVIEW APPROVE (WORKFLOW Stage commit discipline).
+Attach SPEC.md to a new @implement chat and begin TDD scaffolding.
 ```
 
 **On REVISE**, append:
 
 ```
-Return to Stage 3. Open a new @specify chat, paste the Fix list above, resolve all
+Return to Stage 3. Commit: docs(<feature>): SPEC-REVIEW REVISE.
+Open a new @specify chat, paste the Fix list above, resolve all
 findings, then request a fresh Stage 3.5 review.
 ```
 

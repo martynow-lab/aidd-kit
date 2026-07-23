@@ -84,21 +84,30 @@ how good the code looks.
 
 ## Mandatory regression check
 
-Before **PASS**, run (or require evidence of) **`npm test`** (full unit suite)
-and confirm it is green. Feature-only Vitest runs are **not** enough when the
-diff edits a shared module (`src/ui/**`, `src/main.js`, `src/state/**`,
-`src/domain/**`, `src/persist/**`) that older features also test.
+Before **PASS**, run (or require evidence of) **both**:
+
+1. **`npm test`** — the **full** unit suite (not a feature-only Vitest path)
+2. **`npm run check`** — format / lint / typecheck per project scripts
+
+Feature-only Vitest runs are **never** enough for PASS, whether or not the
+diff touches shared modules (`src/ui/**`, `src/main.js`, `src/state/**`,
+`src/domain/**`, `src/persist/**`).
+
+Record command + pass summary in `REVIZOR-REVIEW.md` (Regression / full suite
+section). Missing evidence, red suite, or red check → **REFACTOR**.
 
 If full suite fails because a prior feature’s tests assert behaviour this SPEC
 **supersedes** (e.g. absence of controls now required present), that is still a
 **REFACTOR** finding: sibling tests must be updated in this PR (or the SPEC must
-not claim supersedence). Cite the failing file/case as evidence.
+not claim supersedence). Cite the failing file/case as evidence. Prefer the
+sibling file list from TEST-PLAN §1.1 when present.
 
 ## Verdict
 
-- **PASS** — zero findings; traceability matrix has no gaps.
-- **REFACTOR** — one or more evidence-backed findings, or any traceability gap,
-  or missing/unverifiable inputs.
+- **PASS** — zero findings; traceability matrix has no gaps; `npm test` and
+  `npm run check` green with evidence in the report.
+- **REFACTOR** — one or more evidence-backed findings, any traceability gap,
+  missing/unverifiable inputs, or full suite / check not green.
 
 ## Output format
 
@@ -151,6 +160,16 @@ File content = short header + sections 1–4 below:
 |----|--------------------|------------------|--------|
 | AC-1 | TP-01 | `tests/foo.test.js` → "rejects empty input" | covered |
 | AC-2 | — | — | **gap** |
+
+### 2b. Regression / full suite
+
+| Gate | Command | Result | Evidence |
+|------|---------|--------|----------|
+| Full unit suite | `npm test` | pass / fail | summary line or log excerpt |
+| Check (format/lint/types) | `npm run check` | pass / fail | summary line or log excerpt |
+| Sibling supersedence | TEST-PLAN §1.1 files (if any) | updated / N/A / gap | paths |
+
+Feature-only Vitest is **not** acceptable evidence for PASS.
 
 ### 3. Plain-language summary
 
